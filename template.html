@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report title</title>
+<style>
+:root { --color-bg:#ffffff; --color-fg:#1f1e1d; --color-fg-muted:#6b6a67; --color-panel:#faf9f7; --color-border-line:#e4e1db; --color-ok:#2e7d4f; --color-warn:#b7791f; --color-bad:#c0392b; --cds-gap-xs:.25rem; --cds-gap-sm:.5rem; --cds-gap-md:.75rem; --cds-gap-lg:1.25rem; --cds-pad-md:.875rem; --cds-pad-lg:1.25rem; --cds-radius:10px; --cds-font-size-title:1.75rem; --cds-font-size-heading:1.2rem; --cds-font-size-body:.9rem; --cds-font-size-caption:.8rem; --cds-font-weight-medium:500; --font-anthropic-sans:system-ui,-apple-system,"Segoe UI",sans-serif; --font-anthropic-serif:Georgia,serif; }
+@media (prefers-color-scheme: dark) { :root { --color-bg:#1a1918; --color-fg:#f2efe9; --color-fg-muted:#a8a49c; --color-panel:#242220; --color-border-line:#3a3733; --color-ok:#5fc08a; --color-warn:#e0a84a; --color-bad:#ee7a6b; } }
+body { margin: 0; padding: 16px; background: var(--color-bg); }
+
+.cr { max-width: 64rem; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.cr h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-sm); }
+.cr h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.cr p { margin: 0; line-height: 1.55; }
+.cr .sub, .cr .note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cr b { font-weight: var(--cds-font-weight-medium); font-variant-numeric: tabular-nums; }
+.cr .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+.cr .tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr)); }
+.cr .tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: flex; flex-direction: column; gap: 0.125rem; }
+.cr .tile .v { font-family: var(--font-anthropic-serif); font-size: 2.25rem; line-height: 1.1; font-weight: 400; font-variant-numeric: tabular-nums; }
+.cr .tile .l { font-weight: var(--cds-font-weight-medium); }
+.cr .tile .s { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.cr h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-sm) 0 0; }
+.cr .grid2 { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.cr .chart { display: flex; flex-direction: column; gap: 0.375rem; min-width: 0; }
+.cr .chart h3 { margin: 0 0 0.25rem; }
+.cr .hb { display: grid; grid-template-columns: minmax(6rem, 38%) 1fr auto; align-items: center; gap: 0.5rem; font-size: var(--cds-font-size-caption); }
+.cr .hb .lb { overflow-wrap: anywhere; line-height: 1.25; }
+.cr .hb .tr { background: var(--color-border-line); border-radius: 4px; height: 14px; overflow: hidden; }
+.cr .hb .fl { display: block; height: 100%; border-radius: 4px; min-width: 2px; }
+.cr .hb .vl { font-variant-numeric: tabular-nums; font-weight: var(--cds-font-weight-medium); }
+.cr .legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.cr .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.375rem; }
+.cr .skip { border-left: 4px solid var(--color-bad); }
+.cr .keep { border-left: 4px solid var(--color-ok); }
+.cr .fix { border-left: 4px solid var(--color-warn); }
+.cr .skip h2 { color: var(--color-bad); } .cr .keep h2 { color: var(--color-ok); } .cr .fix h2 { color: var(--color-warn); }
+.cr .scroll { overflow-x: auto; }
+.cr .tall { max-height: 30rem; overflow: auto; }
+.cr table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-body); }
+.cr th, .cr td { padding: 0.5rem 0.625rem; text-align: left; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; font-variant-numeric: tabular-nums; vertical-align: top; }
+.cr th { background: var(--color-panel); font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); position: sticky; top: 0; }
+.cr th.n, .cr td.n { text-align: right; }
+.cr td.topic { white-space: normal; min-width: 12rem; }
+.cr .bar { display: block; height: 6px; border-radius: 3px; margin-top: 4px; min-width: 2px; }
+.cr .v-good { color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
+.cr .v-weak { color: var(--color-warn); font-weight: var(--cds-font-weight-medium); }
+.cr .v-low { color: var(--color-bad); font-weight: var(--cds-font-weight-medium); }
+.cr .v-few { color: var(--color-fg-muted); }
+.cr ol, .cr ul { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: var(--cds-gap-sm); line-height: 1.55; }
+.cr .filters { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.cr .filters button { padding: 0.375rem 0.875rem; border: 1px solid var(--color-border-line); border-radius: 999px; background: var(--color-bg); color: var(--color-fg); font: inherit; font-size: var(--cds-font-size-caption); cursor: pointer; }
+.cr .filters button[aria-pressed=true] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.cr .cr-q { padding: 0.4rem 0.6rem; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); font: inherit; font-size: var(--cds-font-size-body); flex: 1; min-width: 10rem; max-width: 20rem; }
+.cr th button.s { all: unset; cursor: pointer; font-weight: var(--cds-font-weight-medium); }
+.cr th[aria-sort=ascending] button.s::after { content: " ↑"; }
+.cr th[aria-sort=descending] button.s::after { content: " ↓"; }
+
+.cr .tabs { display: flex; gap: 0.5rem; overflow-x: auto; padding: 0.5rem 0; position: sticky; top: 0; z-index: 5; background: var(--color-bg); scrollbar-width: none; }
+.cr .tabs::-webkit-scrollbar { display: none; }
+.cr .tabs button { flex: 0 0 auto; padding: 0.5rem 1rem; border: 1px solid var(--color-border-line); border-radius: 999px; background: var(--color-panel); color: var(--color-fg); font: inherit; font-size: var(--cds-font-size-body); cursor: pointer; white-space: nowrap; }
+.cr .tabs button[aria-selected=true] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.cr .panel { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.cr .panel[hidden] { display: none; }
+.cr svg { display: block; max-width: 100%; overflow: visible; }
+.cr svg text { fill: var(--color-fg-muted); font-size: 11px; font-family: inherit; }
+.cr svg text.val { fill: var(--color-fg); font-weight: 500; }
+.cr svg text.mid { fill: var(--color-fg); font-size: 22px; font-weight: 500; }
+.cr svg .gl { stroke: var(--color-border-line); stroke-width: 1; }
+.cr .lg { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: 0.5rem; }
+.cr .lg b { color: var(--color-fg); }
+@media (max-width: 600px) { .cr .tile .v { font-size: 1.75rem; } .cr th, .cr td { padding: 0.4rem 0.5rem; } }
+</style>
+</head>
+<body>
+<div class="cr">
+  <header>
+    <h1 data-cfg="title">Report title</h1>
+    <p class="sub" data-cfg="subtitle">Page or account name · period · times are local time</p>
+    <p style="margin-top: var(--cds-gap-sm)">We posted <b data-draw="num" data-source="summary" data-field="posts">—</b> times and got <b data-draw="num" data-source="summary" data-field="total">—</b> views. A typical post gets <b data-draw="num" data-source="summary" data-field="median">—</b> views. Best content: <b data-draw="num" data-source="summary" data-field="best_cat" data-fmt="text">—</b>. Weakest: <b data-draw="num" data-source="summary" data-field="worst_cat" data-fmt="text">—</b>. Best time: <b data-draw="num" data-source="summary" data-field="best_slot" data-fmt="text">—</b>.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Report sections">
+    <button type="button" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button type="button" role="tab" data-tab="content" aria-selected="false">Content</button>
+    <button type="button" role="tab" data-tab="time" aria-selected="false">Time</button>
+    <button type="button" role="tab" data-tab="likes" aria-selected="false">Likes and shares</button>
+    <button type="button" role="tab" data-tab="posts" aria-selected="false">All posts</button>
+    <button type="button" role="tab" data-tab="todo" aria-selected="false">What to do</button>
+  </div>
+
+  <div class="panel" data-tab="overview">
+    <section>
+      <div class="tiles">
+        <div class="tile"><span class="v" data-draw="num" data-source="summary" data-field="posts">—</span><span class="l">All posts</span><span class="s">all formats</span></div>
+        <div class="tile"><span class="v" data-draw="num" data-source="summary" data-field="total">—</span><span class="l">Total views</span><span class="s">all posts together</span></div>
+        <div data-draw="fmttiles" style="display: contents"></div>
+        <div class="tile" id="storiesTile"><span class="v" data-draw="num" data-source="stories" data-field="live_stories">—</span><span class="l">Stories</span><span class="s">live right now</span></div>
+        <div class="tile"><span class="v" data-draw="num" data-source="summary" data-field="reactions">—</span><span class="l">Reactions</span><span class="s">likes, loves and more</span></div>
+        <div class="tile"><span class="v" data-draw="num" data-source="summary" data-field="comments">—</span><span class="l">Comments</span><span class="s">on all posts</span></div>
+        <div class="tile"><span class="v" data-draw="num" data-source="summary" data-field="shares">—</span><span class="l">Shares</span><span class="s">on all posts</span></div>
+      </div>
+      <p class="note" id="storiesNote" style="margin-top: var(--cds-gap-sm)">Stories can only be read while they are live, so past stories cannot be counted. Checked on <span data-draw="num" data-source="stories" data-field="checked" data-fmt="text">—</span>.</p>
+    </section>
+    <section class="card">
+      <h2>What we post and what people see</h2>
+      <p class="note">Compare the two rings. A format with a bigger share of views than of posts is working harder.</p>
+      <div class="grid2">
+      <div class="chart"><h3>Share of posts</h3><p class="note">How many posts of each format.</p><div data-draw="donut" data-source="by_format" data-label="format" data-value="posts"></div></div>
+      <div class="chart"><h3>Share of views</h3><p class="note">How many views each format got.</p><div data-draw="donut" data-source="by_format" data-label="format" data-value="total"></div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Posts, views and engagement by format</h2>
+      <div class="scroll">
+        <table data-source="by_format" data-row-key="format">
+          <thead><tr>
+            <th data-field="format" data-fmt="text">Format</th>
+            <th class="n" data-field="posts" data-fmt="int">Posts</th>
+            <th class="n" data-field="share" data-fmt="pct">Share</th>
+            <th class="n" data-field="total" data-fmt="int">Views</th>
+            <th class="n" data-field="median" data-fmt="int">Typical views</th>
+            <th class="n" data-field="reactions" data-fmt="int">Reactions</th>
+            <th class="n" data-field="comments" data-fmt="int">Comments</th>
+            <th class="n" data-field="shares" data-fmt="int">Shares</th>
+          </tr></thead>
+          <tbody data-draw="tbl"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" data-tab="content" hidden>
+    <section class="card">
+      <h2>Which content gets more or fewer views</h2>
+    <div class="legend">
+      <span><span class="dot" style="background: var(--color-ok)"></span>Good: above a typical post</span>
+      <span><span class="dot" style="background: var(--color-warn)"></span>Weak: half to a typical post</span>
+      <span><span class="dot" style="background: var(--color-bad)"></span>Very low: under half</span>
+    </div>
+      <div class="grid2">
+      <div class="chart"><h3>Typical views per post</h3><p class="note">Longer bar = more people see it.</p><div data-draw="hbars" data-source="by_cat" data-label="category" data-value="median" data-color="verdict"></div></div>
+      <div class="chart"><h3>Posts we made</h3><p class="note">Same order as the views chart, so you can compare.</p><div data-draw="hbars" data-source="by_cat" data-label="category" data-value="posts"></div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Details by content</h2>
+      <div class="scroll">
+        <table data-source="by_cat" data-row-key="category">
+          <thead><tr>
+            <th data-field="category" data-fmt="text">Content</th>
+            <th class="n" data-field="posts" data-fmt="int">Posts</th>
+            <th class="n" data-field="total" data-fmt="int">Total views</th>
+            <th class="n" data-field="median" data-fmt="int">Typical views</th>
+            <th class="n" data-field="max" data-fmt="int">Best post</th>
+            <th data-field="verdict" data-fmt="verdict">Result</th>
+          </tr></thead>
+          <tbody data-draw="tbl"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" data-tab="time" hidden>
+    <section class="card">
+      <h2>Which time gets more views</h2>
+    <div class="legend">
+      <span><span class="dot" style="background: var(--color-ok)"></span>Good: above a typical post</span>
+      <span><span class="dot" style="background: var(--color-warn)"></span>Weak: half to a typical post</span>
+      <span><span class="dot" style="background: var(--color-bad)"></span>Very low: under half</span>
+    </div>
+      <div class="grid2">
+      <div class="chart"><h3>Typical views by posting time</h3><p class="note">Local time. Taller = more views.</p><div data-draw="cols" data-source="by_slot" data-label="short" data-value="median" data-color="verdict"></div></div>
+      <div class="chart"><h3>Typical views by week</h3><p class="note">Views per post across the month.</p><div data-draw="line" data-source="by_week" data-label="week" data-value="median"></div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>How many we posted, and how each post did</h2>
+      <div class="grid2">
+      <div class="chart"><h3>Posts per week by format</h3><p class="note">Number of posts each week.</p><div data-draw="stack" data-source="week_fmt" data-label="week"></div></div>
+      <div class="chart"><h3>Every post by time of day</h3><p class="note">Each dot is one post. Higher = more views. The dashed line is a typical post.</p><div data-draw="scatter" data-source="posts" data-x="hour"></div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Details by time</h2>
+      <div class="scroll">
+        <table data-source="by_slot" data-row-key="slot">
+          <thead><tr>
+            <th data-field="slot" data-fmt="text">Time</th>
+            <th class="n" data-field="posts" data-fmt="int">Posts</th>
+            <th class="n" data-field="median" data-fmt="int">Typical views</th>
+            <th class="n" data-field="max" data-fmt="int">Best post</th>
+            <th data-field="verdict" data-fmt="verdict">Result</th>
+          </tr></thead>
+          <tbody data-draw="tbl"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" data-tab="likes" hidden>
+    <section class="card">
+      <h2>Which content people like, comment on and share</h2>
+      <p class="note">Average per post. Reactions means likes, loves and every other reaction. A share means someone passed the post on, the best sign of a post people want.</p>
+      <div class="grid2">
+      <div class="chart"><h3>Reactions per post</h3><p class="note">Average per post.</p><div data-draw="hbars" data-source="eng_cat" data-label="category" data-value="react_avg" data-sort="desc"></div></div>
+      <div class="chart"><h3>Shares per post</h3><p class="note">Average per post.</p><div data-draw="hbars" data-source="eng_cat" data-label="category" data-value="share_avg" data-sort="desc" data-fmt="dec"></div></div>
+      <div class="chart"><h3>Comments per post</h3><p class="note">Average per post.</p><div data-draw="hbars" data-source="eng_cat" data-label="category" data-value="com_avg" data-sort="desc" data-fmt="dec"></div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>The top 5 posts</h2>
+      <div class="grid2">
+      <div class="chart"><h3>Most reactions</h3><p class="note">The date is in the label.</p><div data-draw="hbars" data-source="top_react" data-label="lab" data-value="value"></div></div>
+      <div class="chart"><h3>Most shares</h3><p class="note"></p><div data-draw="hbars" data-source="top_share" data-label="lab" data-value="value"></div></div>
+      <div class="chart"><h3>Most comments</h3><p class="note"></p><div data-draw="hbars" data-source="top_com" data-label="lab" data-value="value"></div></div>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Totals by content</h2>
+      <div class="scroll">
+        <table data-source="eng_cat" data-row-key="category">
+          <thead><tr>
+            <th data-field="category" data-fmt="text">Content</th>
+            <th class="n" data-field="posts" data-fmt="int">Posts</th>
+            <th class="n" data-field="reactions" data-fmt="int">Reactions</th>
+            <th class="n" data-field="react_avg" data-fmt="int">Per post</th>
+            <th class="n" data-field="comments" data-fmt="int">Comments</th>
+            <th class="n" data-field="com_avg" data-fmt="dec">Per post</th>
+            <th class="n" data-field="shares" data-fmt="int">Shares</th>
+            <th class="n" data-field="share_avg" data-fmt="dec">Per post</th>
+          </tr></thead>
+          <tbody data-draw="tbl"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" data-tab="posts" hidden>
+    <section class="card">
+      <h2>Every post across the month</h2>
+      <p class="note">Each dot is one post. Higher = more views. Left to right is day 1 to day 31.</p>
+      <div data-draw="scatter" data-source="posts" data-x="date"></div>
+    </section>
+    <section class="card">
+      <h2>All posts</h2>
+      <div class="filters">
+        <button type="button" data-fmt="" aria-pressed="true">All</button>
+        <input class="cr-q" type="search" placeholder="Search topic or date" aria-label="Search posts">
+      </div>
+      <p class="note">Showing <b data-draw="shown" data-source="posts">—</b> of <b data-draw="num" data-source="summary" data-field="posts">—</b> posts. Click a column name to sort.</p>
+      <div class="tall">
+        <table class="cr-tbl" data-source="posts" data-row-key="dt">
+          <thead><tr>
+            <th data-field="dt"><button type="button" class="s">Posted</button></th>
+            <th data-field="format"><button type="button" class="s">Format</button></th>
+            <th data-field="category"><button type="button" class="s">Content</button></th>
+            <th data-field="topic"><button type="button" class="s">Topic</button></th>
+            <th class="n" data-field="views"><button type="button" class="s">Views</button></th>
+            <th class="n" data-field="reach"><button type="button" class="s">People reached</button></th>
+            <th class="n" data-field="reactions"><button type="button" class="s">Reactions</button></th>
+            <th class="n" data-field="comments"><button type="button" class="s">Comments</button></th>
+            <th class="n" data-field="shares"><button type="button" class="s">Shares</button></th>
+          </tr></thead>
+          <tbody data-draw="posttable"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="panel" data-tab="todo" hidden>
+    <div class="grid2" data-draw="advice"></div>
+    <section class="card" id="nextCard">
+      <h2>Next month, in order</h2>
+      <ol data-draw="nextlist"></ol>
+    </section>
+    <section class="card">
+      <h2>Good to know</h2>
+      <ul data-draw="notes"></ul>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>window.REPORT = /*DATA_START*/{"config":{"title":"Report title","subtitle":"Page or account name · period · times are local time","stories":null,"notes":[],"advice":{"stop":[],"keep":[],"improve":[],"next":[]}},"posts":[]}/*DATA_END*/;</script>
+<script>window.dash = (function () {
+  const calcs = {}, draws = {}, memo = {};
+  const R = window.REPORT || { config: {}, posts: [] };
+  function data(n) {
+    if (n === 'posts') return { status: 'ok', data: R.posts };
+    if (n === 'stories') return { status: 'ok', data: [R.config.stories || { checked: '', live_stories: 0 }] };
+    if (memo[n]) return memo[n];
+    const c = calcs[n]; if (!c) return { status: 'error', data: [] };
+    return (memo[n] = { status: 'ok', data: c.fn.apply(null, c.inputs.map(function (i) { return data(i).data; })) });
+  }
+  return {
+    colors: ['#3d6fb6', '#d9822b', '#3f9a6c', '#8a6bbf', '#c25b7a'],
+    calc: function (n, o) { calcs[n] = o; },
+    data: data,
+    draw: function (n, f) {
+      if (f) draws[n] = f;
+      if (draws[n] && R.posts.length) Array.prototype.slice.call(document.querySelectorAll('[data-draw="' + n + '"]')).forEach(function (e) { draws[n](e); });
+    }
+  };
+})();</script>
+<script>
+dash.calc('by_format', {
+  title: 'Totals by format',
+  description: 'Posts grouped by format (video, photo, text post) with counts, views, reactions and comments.',
+  inputs: ['posts'],
+  fn: (posts) => {
+    const med = (a) => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+    const sum = (a) => a.reduce((x, y) => x + y, 0);
+    const g = {};
+    posts.forEach((r) => { (g[r.format] = g[r.format] || []).push(r); });
+    return Object.keys(g).map((k) => {
+      const v = g[k].map((r) => +r.views);
+      return {
+        format: k, posts: v.length, share: Math.round(v.length / posts.length * 1000) / 10,
+        total: sum(v), median: Math.round(med(v)), avg: Math.round(sum(v) / v.length), max: Math.max.apply(null, v),
+        reactions: sum(g[k].map((r) => +r.reactions)), comments: sum(g[k].map((r) => +r.comments)), shares: sum(g[k].map((r) => +r.shares))
+      };
+    }).sort((a, b) => b.posts - a.posts);
+  }
+});
+dash.calc('top_react', {
+  title: 'Top posts by reactions', description: 'The five posts with the most reactions.', inputs: ['posts'],
+  fn: (posts) => posts.slice().sort((a, b) => +b.reactions - +a.reactions).slice(0, 5).map((r, i) => ({ rank: i + 1, value: +r.reactions, dt: r.dt, format: r.format, topic: r.topic, lab: r.topic + ' · ' + r.dt.slice(5, 10), views: +r.views }))
+});
+dash.calc('top_com', {
+  title: 'Top posts by comments', description: 'The five posts with the most comments.', inputs: ['posts'],
+  fn: (posts) => posts.slice().sort((a, b) => +b.comments - +a.comments).slice(0, 5).map((r, i) => ({ rank: i + 1, value: +r.comments, dt: r.dt, format: r.format, topic: r.topic, lab: r.topic + ' · ' + r.dt.slice(5, 10), views: +r.views }))
+});
+dash.calc('top_share', {
+  title: 'Top posts by shares', description: 'The five posts with the most shares.', inputs: ['posts'],
+  fn: (posts) => posts.slice().sort((a, b) => +b.shares - +a.shares).slice(0, 5).map((r, i) => ({ rank: i + 1, value: +r.shares, dt: r.dt, format: r.format, topic: r.topic, lab: r.topic + ' · ' + r.dt.slice(5, 10), views: +r.views }))
+});
+dash.calc('eng_cat', {
+  title: 'Likes, comments and shares by content', description: 'Per content type: total and average reactions, comments and shares per post.', inputs: ['posts'],
+  fn: (posts) => {
+    const g = {};
+    posts.forEach((r) => { (g[r.category] = g[r.category] || []).push(r); });
+    const sum = (a, k) => a.reduce((x, r) => x + +r[k], 0);
+    return Object.keys(g).map((k) => {
+      const a = g[k], n = a.length;
+      return { category: k, posts: n, reactions: sum(a, 'reactions'), react_avg: Math.round(sum(a, 'reactions') / n), comments: sum(a, 'comments'), com_avg: sum(a, 'comments') / n, shares: sum(a, 'shares'), share_avg: sum(a, 'shares') / n };
+    }).sort((a, b) => b.react_avg - a.react_avg);
+  }
+});
+dash.calc('by_cat', {
+  title: 'Views by content',
+  description: 'Posts grouped by content type with count, total, typical and best views, and a result against the typical post.',
+  inputs: ['posts'],
+  fn: (posts) => {
+    const med = (a) => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+    const sum = (a) => a.reduce((x, y) => x + y, 0);
+    const typical = med(posts.map((r) => +r.views));
+    const g = {};
+    posts.forEach((r) => { (g[r.category] = g[r.category] || []).push(+r.views); });
+    return Object.keys(g).map((k) => {
+      const m = Math.round(med(g[k]));
+      return { category: k, posts: g[k].length, total: sum(g[k]), median: m, max: Math.max.apply(null, g[k]), verdict: g[k].length < 3 ? 'Too few posts' : m >= typical ? 'Good' : m >= typical / 2 ? 'Weak' : 'Very low' };
+    }).sort((a, b) => b.median - a.median);
+  }
+});
+dash.calc('by_slot', {
+  title: 'Views by posting time',
+  description: 'Posts grouped by local posting-time window with count, typical and best views, and a result against the typical post.',
+  inputs: ['posts'],
+  fn: (posts) => {
+    const med = (a) => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+    const typical = med(posts.map((r) => +r.views));
+    const slots = ['6:00 AM - 8:59 AM', '9:00 AM - 11:59 AM', '12:00 PM - 3:59 PM', '4:00 PM - 6:59 PM', '7:00 PM - 7:59 PM', '8:00 PM - 8:59 PM', '9:00 PM - 11:59 PM'];
+    const shorts = ['6-9 AM', '9-12 AM', '12-4 PM', '4-7 PM', '7-8 PM', '8-9 PM', '9 PM+'];
+    const pick = (h) => h < 9 ? 0 : h < 12 ? 1 : h < 16 ? 2 : h < 19 ? 3 : h === 19 ? 4 : h === 20 ? 5 : 6;
+    const g = {};
+    posts.forEach((r) => { const i = pick(+r.hour); (g[i] = g[i] || []).push(+r.views); });
+    return Object.keys(g).map((i) => {
+      const m = Math.round(med(g[i]));
+      return { slot: slots[+i], short: shorts[+i], order: +i, posts: g[i].length, median: m, max: Math.max.apply(null, g[i]), verdict: g[i].length < 5 ? 'Too few posts' : m >= typical ? 'Good' : m >= typical / 2 ? 'Weak' : 'Very low' };
+    }).sort((a, b) => a.order - b.order);
+  }
+});
+dash.calc('by_week', {
+  title: 'Views by week',
+  description: 'Posts grouped into five date windows of the month with count, total and typical views.',
+  inputs: ['posts'],
+  fn: (posts) => {
+    const med = (a) => { const s = a.slice().sort((x, y) => x - y), m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+    const defs = [['1-7', 1, 7], ['8-14', 8, 14], ['15-21', 15, 21], ['22-28', 22, 28], ['29-31', 29, 31]];
+    return defs.map((d) => {
+      const v = posts.filter((r) => { const day = +r.dt.slice(8, 10); return day >= d[1] && day <= d[2]; }).map((r) => +r.views);
+      return { week: d[0], posts: v.length, total: v.reduce((a, b) => a + b, 0), median: Math.round(med(v)) };
+    });
+  }
+});
+dash.calc('summary', {
+  title: 'Month summary',
+  description: 'Headline totals and the best and weakest content and posting time.',
+  inputs: ['posts', 'by_cat', 'by_slot'],
+  fn: (posts, by_cat, by_slot) => {
+    const v = posts.map((r) => +r.views).sort((a, b) => a - b);
+    const m = v.length >> 1;
+    const median = v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+    const total = v.reduce((a, b) => a + b, 0);
+    let cats = by_cat.filter((c) => c.posts >= 3); if (!cats.length) cats = by_cat;
+    let slots = by_slot.filter((s) => s.posts >= 5); if (!slots.length) slots = by_slot; slots = slots.slice().sort((a, b) => b.median - a.median);
+    return [{
+      posts: posts.length, total: total, median: Math.round(median),
+      reactions: posts.reduce((a, r) => a + +r.reactions, 0), comments: posts.reduce((a, r) => a + +r.comments, 0), shares: posts.reduce((a, r) => a + +r.shares, 0),
+      best_cat: cats[0].category, worst_cat: cats[cats.length - 1].category,
+      best_slot: slots[0].slot
+    }];
+  }
+});
+
+dash.calc('week_fmt', {
+  title: 'Posts per week by format',
+  description: 'Number of posts of each format in each date window of the month.',
+  inputs: ['posts'],
+  fn: (posts) => {
+    const fmts = Array.from(new Set(posts.map((r) => r.format))).sort();
+    return [['1-7', 1, 7], ['8-14', 8, 14], ['15-21', 15, 21], ['22-28', 22, 28], ['29-31', 29, 31]].map((d) => {
+      const p = posts.filter((r) => { const day = +r.dt.slice(8, 10); return day >= d[1] && day <= d[2]; });
+      const o = { week: d[0] };
+      fmts.forEach((f) => { o[f] = p.filter((r) => r.format === f).length; });
+      return o;
+    });
+  }
+});
+</script>
+<script>
+dash.draw('num', function (el) {
+  el.textContent = '—';
+  const g = dash.data(el.dataset.source);
+  if (g.status !== 'ok') return;
+  let row;
+  const w = el.dataset.where;
+  if (w) {
+    const pairs = w.split('&').map(function (p) { const i = p.indexOf('='); return [decodeURIComponent(p.slice(0, i)), decodeURIComponent(p.slice(i + 1))]; });
+    row = g.data.find(function (r) { return pairs.every(function (kv) { return String(r[kv[0]]) === kv[1]; }); });
+  } else {
+    row = g.data[0];
+  }
+  if (!row) return;
+  const v = row[el.dataset.field];
+  if (v == null || v === '') return;
+  const f = el.dataset.fmt;
+  el.textContent = f === 'pct' ? v + '%' : f === 'text' ? String(v) : d3.format(',')(+v);
+});
+
+dash.draw('hbars', function (el) {
+  el.replaceChildren();
+  const g = dash.data(el.dataset.source);
+  if (g.status !== 'ok') return;
+  const L = el.dataset.label, V = el.dataset.value;
+  let rows = g.data.slice();
+  if (el.dataset.sort === 'desc') rows.sort(function (a, b) { return +b[V] - +a[V]; });
+  const max = d3.max(rows, function (r) { return +r[V]; }) || 1;
+  const col = { 'Good': 'var(--color-ok)', 'Weak': 'var(--color-warn)', 'Very low': 'var(--color-bad)', 'Too few posts': 'var(--color-fg-muted)' };
+  rows.forEach(function (r) {
+    const row = document.createElement('div'); row.className = 'hb';
+    const lb = document.createElement('span'); lb.className = 'lb'; lb.textContent = r[L];
+    const tr = document.createElement('span'); tr.className = 'tr';
+    const fl = document.createElement('span'); fl.className = 'fl';
+    fl.style.width = Math.max(1, Math.round(+r[V] / max * 100)) + '%';
+    fl.style.background = el.dataset.color === 'verdict' ? (col[r.verdict] || dash.colors[0]) : dash.colors[0];
+    tr.appendChild(fl);
+    const vl = document.createElement('span'); vl.className = 'vl';
+    vl.textContent = d3.format(el.dataset.fmt === 'dec' ? ',.1f' : ',')(+r[V]);
+    row.appendChild(lb); row.appendChild(tr); row.appendChild(vl);
+    el.appendChild(row);
+  });
+});
+
+dash.draw('tbl', function (tb) {
+  tb.replaceChildren();
+  const table = tb.closest('table');
+  const g = dash.data(table.dataset.source);
+  if (g.status !== 'ok') return;
+  const cols = Array.from(table.querySelectorAll('th[data-field]'));
+  const maxes = {};
+  cols.forEach(function (th) { if (th.dataset.fmt === 'bar') maxes[th.dataset.field] = d3.max(g.data, function (r) { return +r[th.dataset.field]; }) || 1; });
+  g.data.forEach(function (r) {
+    const tr = document.createElement('tr');
+    tr.dataset.key = r[table.dataset.rowKey];
+    cols.forEach(function (th) {
+      const f = th.dataset.field, v = r[f], fmt = th.dataset.fmt;
+      const td = document.createElement('td');
+      if (th.classList.contains('n')) td.className = 'n';
+      if (fmt === 'int') td.textContent = d3.format(',')(+v);
+      else if (fmt === 'dec') td.textContent = d3.format(',.1f')(+v);
+      else if (fmt === 'pct') td.textContent = v + '%';
+      else if (fmt === 'bar') {
+        td.textContent = d3.format(',')(+v);
+        const bar = document.createElement('span');
+        bar.className = 'bar';
+        bar.style.width = Math.max(2, Math.round(+v / maxes[f] * 100)) + '%';
+        bar.style.background = dash.colors[0];
+        td.appendChild(bar);
+      } else if (fmt === 'verdict') {
+        td.textContent = v;
+        td.className = v === 'Good' ? 'v-good' : v === 'Weak' ? 'v-weak' : v === 'Very low' ? 'v-low' : 'v-few';
+      } else td.textContent = v;
+      tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+});
+
+
+dash.draw('fmttiles', function (el) {
+  el.replaceChildren();
+  const g = dash.data('by_format'); if (g.status !== 'ok') return;
+  g.data.forEach(function (r) {
+    const t = document.createElement('div'); t.className = 'tile';
+    t.innerHTML = '<span class="v"></span><span class="l"></span><span class="s"></span>';
+    t.querySelector('.v').textContent = d3.format(',')(r.posts);
+    t.querySelector('.l').textContent = r.format;
+    t.querySelector('.s').textContent = r.share + '% of posts';
+    el.appendChild(t);
+  });
+});
+function rich(li, text) {
+  String(text).split('**').forEach(function (part, i) {
+    if (i % 2) { const b = document.createElement('b'); b.textContent = part; li.appendChild(b); } else li.appendChild(document.createTextNode(part));
+  });
+}
+const CFG = (window.REPORT && window.REPORT.config) || {};
+dash.draw('advice', function (el) {
+  el.replaceChildren();
+  [['stop', 'Stop', 'skip'], ['keep', 'Keep', 'keep'], ['improve', 'Improve', 'fix']].forEach(function (c) {
+    const sec = document.createElement('section'); sec.className = 'card ' + c[2];
+    const h = document.createElement('h2'); h.textContent = c[1]; sec.appendChild(h);
+    const ul = document.createElement('ul');
+    const items = (CFG.advice && CFG.advice[c[0]]) || [];
+    (items.length ? items : ['Write 3 to 4 short lines here in config.json, from what the charts show.']).forEach(function (t) { const li = document.createElement('li'); rich(li, t); ul.appendChild(li); });
+    sec.appendChild(ul); el.appendChild(sec);
+  });
+});
+dash.draw('nextlist', function (el) {
+  el.replaceChildren();
+  const items = (CFG.advice && CFG.advice.next) || [];
+  if (!items.length) { document.getElementById('nextCard').hidden = true; return; }
+  items.forEach(function (t) { const li = document.createElement('li'); rich(li, t); el.appendChild(li); });
+});
+dash.draw('notes', function (el) {
+  el.replaceChildren();
+  const base = ['We use the typical post (median) instead of the average, so one very big post does not hide the rest.',
+    'Each post is grouped by reading its caption. If a post is in the wrong group, change its category in data.csv and build again.',
+    'Time and content type overlap, so a good time is not proven apart from the content. Test one change for a week, then compare.',
+    'This is a saved copy, not live.'];
+  (CFG.notes || []).concat(base).forEach(function (t) { const li = document.createElement('li'); li.textContent = t; el.appendChild(li); });
+});
+(function () {
+  document.querySelectorAll('[data-cfg]').forEach(function (e) { if (CFG[e.dataset.cfg]) e.textContent = CFG[e.dataset.cfg]; });
+  if (CFG.title) document.title = CFG.title;
+  if (!CFG.stories) { const a = document.getElementById('storiesTile'), b = document.getElementById('storiesNote'); if (a) a.hidden = true; if (b) b.hidden = true; }
+})();
+
+(function () {
+  const st = { key: 'dt', dir: -1, q: '', fmt: '' };
+  (function () {
+    const all = document.querySelector('.filters button[data-fmt=""]'); if (!all) return;
+    Array.from(new Set(dash.data('posts').data.map((r) => r.format))).sort().forEach(function (f) {
+      const b = document.createElement('button'); b.type = 'button'; b.dataset.fmt = f; b.setAttribute('aria-pressed', 'false'); b.textContent = f;
+      all.parentNode.insertBefore(b, document.querySelector('.cr-q'));
+    });
+  })();
+  const cols = ['dt', 'format', 'category', 'topic', 'views', 'reach', 'reactions', 'comments', 'shares'];
+  const num = { views: 1, reach: 1, reactions: 1, comments: 1, shares: 1 };
+  function filtered() {
+    const g = dash.data('posts');
+    if (g.status !== 'ok') return [];
+    const q = st.q.trim().toLowerCase();
+    return g.data.filter(function (r) {
+      return (!st.fmt || r.format === st.fmt) && (!q || [r.topic, r.dt, r.category].join(' ').toLowerCase().indexOf(q) >= 0);
+    });
+  }
+  dash.draw('shown', function (el) {
+    el.textContent = '—';
+    if (dash.data('posts').status !== 'ok') return;
+    el.textContent = d3.format(',')(filtered().length);
+  });
+  dash.draw('posttable', function (tb) {
+    tb.replaceChildren();
+    if (dash.data('posts').status !== 'ok') return;
+    const rows = filtered();
+    rows.sort(function (a, b) {
+      const d = num[st.key] ? (+a[st.key] - +b[st.key]) : String(a[st.key]).localeCompare(String(b[st.key]));
+      return d * st.dir;
+    });
+    rows.forEach(function (r) {
+      const tr = document.createElement('tr');
+      tr.dataset.key = r.dt;
+      cols.forEach(function (c) {
+        const td = document.createElement('td');
+        if (num[c]) { td.className = 'n'; td.textContent = d3.format(',')(+r[c]); }
+        else { if (c === 'topic') td.className = 'topic'; td.textContent = r[c]; }
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    document.querySelectorAll('.cr-tbl th[data-field]').forEach(function (th) {
+      th.setAttribute('aria-sort', th.dataset.field === st.key ? (st.dir > 0 ? 'ascending' : 'descending') : 'none');
+    });
+  });
+  document.querySelectorAll('.cr-tbl th[data-field] button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const k = btn.parentElement.dataset.field;
+      if (st.key === k) { st.dir = -st.dir; } else { st.key = k; st.dir = num[k] ? -1 : 1; }
+      dash.draw('posttable');
+    });
+  });
+  document.querySelectorAll('.filters button[data-fmt]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      st.fmt = btn.dataset.fmt;
+      document.querySelectorAll('.filters button[data-fmt]').forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      dash.draw('posttable'); dash.draw('shown');
+    });
+  });
+  document.querySelectorAll('.cr-q').forEach(function (inp) {
+    inp.addEventListener('input', function () { st.q = inp.value; dash.draw('posttable'); dash.draw('shown'); });
+  });
+})();
+
+(function () {
+  const FMT = Array.from(new Set(dash.data('posts').data.map((r) => r.format))).sort();
+  const FC = {}; FMT.forEach((f, i) => { FC[f] = i; });
+  const fcol = (f) => dash.colors[FC[f] != null ? FC[f] : 3];
+  const vcol = (v) => ({ 'Good': 'var(--color-ok)', 'Weak': 'var(--color-warn)', 'Very low': 'var(--color-bad)', 'Too few posts': 'var(--color-fg-muted)' }[v] || dash.colors[0]);
+  const W = (el) => Math.max(260, Math.floor(el.getBoundingClientRect().width) || Math.floor(el.parentNode.getBoundingClientRect().width) || 320);
+  function mk(el, h) {
+    el.replaceChildren();
+    const w = W(el);
+    const svg = d3.select(el).append('svg').attr('viewBox', '0 0 ' + w + ' ' + h).attr('width', '100%').attr('height', h).attr('role', 'img');
+    return { svg: svg, w: w };
+  }
+  function ready(el) { const g = dash.data(el.dataset.source); return g.status === 'ok' ? g.data : null; }
+  function legend(el, items) {
+    const d = document.createElement('div'); d.className = 'lg';
+    items.forEach(function (it) {
+      const s = document.createElement('span');
+      const dot = document.createElement('span'); dot.className = 'dot'; dot.style.background = it.c;
+      s.appendChild(dot); s.appendChild(document.createTextNode(it.t));
+      d.appendChild(s);
+    });
+    el.appendChild(d);
+  }
+  const fmt = d3.format(',');
+
+  dash.draw('donut', function (el) {
+    const rows = ready(el); if (!rows) { el.replaceChildren(); return; }
+    const L = el.dataset.label, V = el.dataset.value;
+    const size = Math.min(220, W(el)), o = mk(el, size);
+    const r = size / 2 - 4;
+    const g = o.svg.append('g').attr('transform', 'translate(' + (o.w / 2) + ',' + (size / 2) + ')');
+    const total = d3.sum(rows, (d) => +d[V]);
+    const arcs = d3.pie().value((d) => +d[V]).sort(null).padAngle(0.02)(rows);
+    g.selectAll('path').data(arcs).join('path')
+      .attr('d', d3.arc().innerRadius(r * 0.6).outerRadius(r).cornerRadius(3))
+      .attr('fill', (d) => fcol(d.data[L]))
+      .append('title').text((d) => d.data[L] + ': ' + fmt(+d.data[V]));
+    g.append('text').attr('class', 'mid').attr('text-anchor', 'middle').attr('dy', '0.35em').text(fmt(total));
+    const lg = document.createElement('div'); lg.className = 'lg';
+    rows.forEach(function (d) {
+      const s = document.createElement('span');
+      const dot = document.createElement('span'); dot.className = 'dot'; dot.style.background = fcol(d[L]);
+      const b = document.createElement('b'); b.textContent = Math.round(+d[V] / total * 100) + '%';
+      s.appendChild(dot); s.appendChild(document.createTextNode(d[L] + ' ')); s.appendChild(b);
+      lg.appendChild(s);
+    });
+    el.appendChild(lg);
+  });
+
+  function axisLabels(o, x, rows, L, y0) {
+    o.svg.append('g').selectAll('text').data(rows).join('text')
+      .attr('x', (d) => x(d[L]) + x.bandwidth() / 2).attr('y', y0).attr('text-anchor', 'middle')
+      .each(function (d) {
+        const parts = String(d[L]).split(' ');
+        const t = d3.select(this);
+        if (x.bandwidth() < 54 && parts.length > 1) { parts.forEach(function (p, i) { t.append('tspan').attr('x', x(d[L]) + x.bandwidth() / 2).attr('dy', i ? '1.1em' : 0).text(p); }); }
+        else t.text(d[L]);
+      });
+  }
+
+  dash.draw('cols', function (el) {
+    const rows = ready(el); if (!rows) { el.replaceChildren(); return; }
+    const L = el.dataset.label, V = el.dataset.value, h = 240, m = { t: 20, r: 4, b: 40, l: 4 };
+    const o = mk(el, h);
+    const x = d3.scaleBand().domain(rows.map((d) => d[L])).range([m.l, o.w - m.r]).padding(0.22);
+    const y = d3.scaleLinear().domain([0, d3.max(rows, (d) => +d[V]) * 1.1 || 1]).range([h - m.b, m.t]);
+    o.svg.append('line').attr('class', 'gl').attr('x1', 0).attr('x2', o.w).attr('y1', h - m.b).attr('y2', h - m.b);
+    o.svg.selectAll('rect').data(rows).join('path')
+      .attr('d', (d) => { const x0 = x(d[L]), w = x.bandwidth(), y0 = y(+d[V]), yb = h - m.b, rr = Math.min(4, w / 2, yb - y0); return 'M' + x0 + ',' + yb + 'V' + (y0 + rr) + 'Q' + x0 + ',' + y0 + ' ' + (x0 + rr) + ',' + y0 + 'H' + (x0 + w - rr) + 'Q' + (x0 + w) + ',' + y0 + ' ' + (x0 + w) + ',' + (y0 + rr) + 'V' + yb + 'Z'; })
+      .attr('fill', (d) => el.dataset.color === 'verdict' ? vcol(d.verdict) : dash.colors[0])
+      .append('title').text((d) => d[L] + ': ' + fmt(+d[V]));
+    o.svg.append('g').selectAll('text').data(rows).join('text').attr('class', 'val')
+      .attr('x', (d) => x(d[L]) + x.bandwidth() / 2).attr('y', (d) => y(+d[V]) - 5).attr('text-anchor', 'middle').text((d) => fmt(+d[V]));
+    axisLabels(o, x, rows, L, h - m.b + 15);
+  });
+
+  dash.draw('line', function (el) {
+    const rows = ready(el); if (!rows) { el.replaceChildren(); return; }
+    const L = el.dataset.label, V = el.dataset.value, h = 240, m = { t: 24, r: 18, b: 28, l: 18 };
+    const o = mk(el, h);
+    const x = d3.scalePoint().domain(rows.map((d) => d[L])).range([m.l + 12, o.w - m.r - 12]);
+    const y = d3.scaleLinear().domain([0, d3.max(rows, (d) => +d[V]) * 1.15 || 1]).range([h - m.b, m.t]);
+    o.svg.append('line').attr('class', 'gl').attr('x1', 0).attr('x2', o.w).attr('y1', h - m.b).attr('y2', h - m.b);
+    o.svg.append('path').datum(rows).attr('fill', 'none').attr('stroke', dash.colors[0]).attr('stroke-width', 2.5).attr('stroke-linejoin', 'round')
+      .attr('d', d3.line().x((d) => x(d[L])).y((d) => y(+d[V])).curve(d3.curveMonotoneX));
+    o.svg.selectAll('circle').data(rows).join('circle').attr('cx', (d) => x(d[L])).attr('cy', (d) => y(+d[V])).attr('r', 5)
+      .attr('fill', dash.colors[0]).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2)
+      .append('title').text((d) => d[L] + ': ' + fmt(+d[V]));
+    o.svg.append('g').selectAll('text').data(rows).join('text').attr('class', 'val').attr('x', (d) => x(d[L])).attr('y', (d) => y(+d[V]) - 11).attr('text-anchor', 'middle').text((d) => fmt(+d[V]));
+    o.svg.append('g').selectAll('text').data(rows).join('text').attr('x', (d) => x(d[L])).attr('y', h - m.b + 17).attr('text-anchor', 'middle').text((d) => d[L].replace(' Oct', ''));
+  });
+
+  dash.draw('stack', function (el) {
+    const rows = ready(el); if (!rows) { el.replaceChildren(); return; }
+    const L = el.dataset.label, keys = Object.keys(rows[0]).filter((k) => k !== 'week'), h = 240, m = { t: 20, r: 4, b: 28, l: 4 };
+    const o = mk(el, h);
+    const x = d3.scaleBand().domain(rows.map((d) => d[L])).range([m.l, o.w - m.r]).padding(0.25);
+    const tot = (d) => d3.sum(keys, (k) => +d[k]);
+    const y = d3.scaleLinear().domain([0, d3.max(rows, tot) * 1.12 || 1]).range([h - m.b, m.t]);
+    o.svg.append('line').attr('class', 'gl').attr('x1', 0).attr('x2', o.w).attr('y1', h - m.b).attr('y2', h - m.b);
+    const st = d3.stack().keys(keys)(rows);
+    st.forEach(function (layer) {
+      o.svg.append('g').selectAll('rect').data(layer).join('rect')
+        .attr('x', (d) => x(d.data[L])).attr('width', x.bandwidth())
+        .attr('y', (d) => y(d[1])).attr('height', (d) => Math.max(0, y(d[0]) - y(d[1]) - 2))
+        .attr('rx', 3).attr('fill', fcol(layer.key))
+        .append('title').text((d) => layer.key + ': ' + (d[1] - d[0]));
+    });
+    o.svg.append('g').selectAll('text').data(rows).join('text').attr('class', 'val').attr('x', (d) => x(d[L]) + x.bandwidth() / 2).attr('y', (d) => y(tot(d)) - 6).attr('text-anchor', 'middle').text(tot);
+    o.svg.append('g').selectAll('text').data(rows).join('text').attr('x', (d) => x(d[L]) + x.bandwidth() / 2).attr('y', h - m.b + 17).attr('text-anchor', 'middle').text((d) => d[L].replace(' Oct', ''));
+    legend(el, keys.map((k) => ({ c: fcol(k), t: k })));
+  });
+
+  dash.draw('scatter', function (el) {
+    const rows = ready(el); if (!rows) { el.replaceChildren(); return; }
+    const byHour = el.dataset.x === 'hour', h = 280, m = { t: 12, r: 10, b: 30, l: 40 };
+    const o = mk(el, h);
+    const X = (d) => byHour ? (+d.hour + (+d.dt.slice(14, 16)) / 60) : (+d.dt.slice(8, 10) + (+d.hour + (+d.dt.slice(14, 16)) / 60) / 24);
+    const x = d3.scaleLinear().domain(byHour ? [5, 24] : [1, 32]).range([m.l, o.w - m.r]);
+    const y = d3.scaleLog().domain([50, 200000]).range([h - m.b, m.t]);
+    [100, 1000, 10000, 100000].forEach(function (t) {
+      o.svg.append('line').attr('class', 'gl').attr('x1', m.l).attr('x2', o.w - m.r).attr('y1', y(t)).attr('y2', y(t));
+      o.svg.append('text').attr('x', m.l - 6).attr('y', y(t) + 4).attr('text-anchor', 'end').text(t >= 1000 ? (t / 1000) + 'k' : t);
+    });
+    const ticks = byHour ? [6, 9, 12, 15, 18, 21] : [1, 8, 15, 22, 29];
+    ticks.forEach(function (t) {
+      o.svg.append('text').attr('x', x(t)).attr('y', h - m.b + 18).attr('text-anchor', 'middle').text(byHour ? (t === 12 ? '12 PM' : t > 12 ? (t - 12) + ' PM' : t + ' AM') : '' + t);
+    });
+    const med = d3.median(rows, (d) => +d.views);
+    o.svg.append('line').attr('x1', m.l).attr('x2', o.w - m.r).attr('y1', y(med)).attr('y2', y(med)).attr('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '4 4');
+    o.svg.append('text').attr('x', m.l + 4).attr('y', y(med) - 5).attr('text-anchor', 'start').text('typical post ' + fmt(Math.round(med)));
+    o.svg.append('g').selectAll('circle').data(rows).join('circle')
+      .attr('cx', (d) => x(X(d))).attr('cy', (d) => y(Math.max(50, +d.views))).attr('r', 5)
+      .attr('fill', (d) => fcol(d.format)).attr('fill-opacity', 0.85).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5)
+      .append('title').text((d) => d.topic + ' · ' + d.dt + ' · ' + fmt(+d.views) + ' views');
+    legend(el, FMT.map((k) => ({ c: fcol(k), t: k })));
+  });
+
+  const btns = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
+  const panels = Array.prototype.slice.call(document.querySelectorAll('.panel'));
+  function redraw() { ['donut', 'cols', 'line', 'stack', 'scatter', 'hbars'].forEach(function (k) { dash.draw(k); }); }
+  function show(id) {
+    btns.forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tab === id ? 'true' : 'false'); });
+    panels.forEach(function (p) { p.hidden = p.dataset.tab !== id; });
+    redraw();
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tab); }); });
+  let tm;
+  window.addEventListener('resize', function () { clearTimeout(tm); tm = setTimeout(redraw, 150); });
+  show('overview');
+})();
+</script>
+</body>
+</html>
