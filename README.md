@@ -57,3 +57,11 @@ python prerender.py report.html report_static.html
 ```
 
 Send report_static.html to your phone.
+
+## Send a PDF instead
+
+make_pdf.py turns report.html into a designed A4 PDF with every section in order (overview, content, time, likes and shares, all posts, what to do) and all charts. A PDF opens on any phone.
+
+```
+python make_pdf.py report.html report.pdf
+```
