@@ -45,3 +45,15 @@ Look at the charts, then write 3 or 4 short lines for each of Stop, Keep, Improv
 - "Good / Weak / Very low" compares each group with the typical post of the whole month.
 - Stories: set `"stories": {"checked": "2026-10-31 18:05", "live_stories": 0}` in `config.json` to show a stories tile. Leave it `null` to hide it.
 - If you use Claude, ask it to use the `report-artifact-making` skill and this template: it pulls the data, checks the counts, fills `data.csv` and `config.json`, and builds the file.
+
+## Make the file open on iPhone (pre-render step)
+
+iPhone previews (Telegram, Files, Mail) block JavaScript, so a plain report.html shows empty dashes there. Run prerender.py once after building and the file shows all numbers, tables and charts even with JavaScript off. In a normal browser it still works with tabs, sorting and filters.
+
+```
+pip install playwright
+python -m playwright install chromium
+python prerender.py report.html report_static.html
+```
+
+Send report_static.html to your phone.
