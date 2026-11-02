@@ -1,0 +1,14 @@
+{
+  "title": "My page report: Month Year",
+  "subtitle": "Page or account name · 1 to 31 Month · times are local time",
+  "stories": null,
+  "notes": [
+    "Numbers come from the platform, up to <date and time>."
+  ],
+  "advice": {
+    "stop": ["**What to stop.** One line with a number from the charts."],
+    "keep": ["**What to keep.** One line with a number from the charts."],
+    "improve": ["**What to improve.** One line with a number from the charts."],
+    "next": ["First thing to do next month.", "Second thing.", "Third thing."]
+  }
+}
